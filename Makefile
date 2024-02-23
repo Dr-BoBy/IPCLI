@@ -1,8 +1,8 @@
 EXE=IPCLI
 
 SRC=$(wildcard *.cpp)
-CXXFLAGS=-Wall -Wextra -MMD -Wno-unknown-pragmas -Dcimg_display=0 -Dcimg_use_openmp=0
-LDFLAGS=
+CXXFLAGS=-Wall -Wextra -MMD -Wno-unknown-pragmas -Dcimg_display=0 -Dcimg_use_openmp=0 -pthread
+LDFLAGS=-pthread
 
 OBJ=$(addprefix build/,$(SRC:.cpp=.o))
 DEP=$(OBJ:.o=.d)
