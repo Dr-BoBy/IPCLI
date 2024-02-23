@@ -129,6 +129,19 @@ Image Pixel(Image img, int size){
     return image;
 }
 
+int GetPixelFactor(Image image,int size){
+    int max = size;
+    int i=size;
+    while(i>1){
+        if(image.height()%(2*i+1) ==0 && image.width()%(2*i+1)==0){
+            max = i;
+            break;
+        }
+        i--;
+    }
+    return max;
+}
+
 int main(int argc, char *argv[]) {
 
     //DEBUG
@@ -157,13 +170,13 @@ int main(int argc, char *argv[]) {
             worker.join();
             argId=argId+1;
         }
-        else if(strcmp(argv[argId],"chanFactor")==0){
+        else if(strcmp(argv[argId],"chanFactor")==0 && argc>=(argId+4)){
             std::cout << "Applaying Channel Factor filter...\n";
             std::thread worker([&image, &argv, &argId]{image = ChanFactor(image, atof(argv[argId+1]),atof(argv[argId+2]),atof(argv[argId+3]));});
             worker.join();
             argId=argId+4;
         }
-        else if(strcmp(argv[argId],"chanSwap")==0){
+        else if(strcmp(argv[argId],"chanSwap")==0 && argc>=(argId+4)){
             if(*argv[argId+1] != 'r' && *argv[argId+1] != 'g' && *argv[argId+1] != 'b'){
                 std::cout << "Unknown channel => " << argv[argId+1] << "\nAvailable channels are r/g/b\n";
                 break;
@@ -181,13 +194,13 @@ int main(int argc, char *argv[]) {
             worker.join();
             argId=argId+4;
         }
-        else if(strcmp(argv[argId],"blur")==0){
+        else if(strcmp(argv[argId],"blur")==0 && argc>=(argId+2)){
             std::cout << "Applaying Blur filter...\n";
             std::thread worker([&image, &argv, &argId]{image = Blur(image, strtol(argv[argId+1],NULL, 10));});
             worker.join();
             argId=argId+2;
         }
-        else if(strcmp(argv[argId],"extract")==0){
+        else if(strcmp(argv[argId],"extract")==0 && argc>=(argId+2)){
             if(*argv[argId+1] != 'r' && *argv[argId+1] != 'g' && *argv[argId+1] != 'b'){
                 std::cout << "Unknown channel => " << argv[argId+1] << "\nAvailable channels are r/g/b\n";
                 break;
@@ -197,24 +210,15 @@ int main(int argc, char *argv[]) {
             worker.join();
             argId=argId+2;
         }
-        else if(strcmp(argv[argId],"pixel")==0){
+        else if(strcmp(argv[argId],"pixel")==0 && argc>=(argId+3)){
             int size = strtol(argv[argId+1],NULL, 10);
-            if(strcmp(argv[argId+2],"true")==0){
-                int max = size;
-                int i=size;
-                while(i>1){
-                    std::cout << i << "\n";
-                    if(image.height()%(2*i+1) ==0 && image.width()%(2*i+1)==0){
-                        max = i;
-                        break;
-                    }
-                    i--;
-                }
-                if(max==size){
+            if(strcmp(argv[argId+2],"true")==0 && !(image.height()%(2*size+1)==0 && image.width()%(2*size+1)==0)){
+                int factor = GetPixelFactor(image,size);
+                if(factor==size){
                     std::cout << "/!\\ Warning : Unable to autofit !\n";     
                 }else{
-                    std::cout << "Autofit enable -> New pixel factor : "<< max <<"\n";
-                    size = max;  
+                    std::cout << "Autofit enable -> New pixel factor : "<< factor <<"\n";
+                    size = factor;  
                 }
             }else{
                 if(image.height()%(size*2+1) != 0 || image.width()%(size*2+1) != 0) {
